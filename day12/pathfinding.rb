@@ -8,6 +8,7 @@ def run_routing(map, start, finish)
 
     runners.each do |runner|
       if finish == [runner[:x], runner[:y]]
+        reset_map(map)
         return runner[:steps]
       end
 
@@ -49,6 +50,9 @@ def run_routing(map, start, finish)
     end
     
     runners = new_runners
+    if runners.empty?
+      return nil
+    end
   end
 end
 
@@ -71,17 +75,26 @@ def can_move?(map, current, target)
   return true
 end
 
+def reset_map(map)
+  map.each do |row|
+    row.each do |location|
+      location[:routed] = false
+    end
+  end
+end
+
 input = $stdin.read.lines(chomp: true)
 
 map     = []
 start   = [0, 0]
 finish  = [0, 0]
+possible_start_positions = []
 
 input.each_index do |y|
-  map << input[y].chars.map do |x|
+  map << input[y].chars.map do |c|
     location = {}
 
-    location[:height] = x
+    location[:height] = c
     location[:routed] = false
 
     location[:height] = "a" if location[:height] == "S"
@@ -93,14 +106,24 @@ input.each_index do |y|
   input[y].chars.each_index do |x|
     if input[y][x] == "S"
       start = [x, y]
+      possible_start_positions << [x, y]
     elsif input[y][x] == "E"
       finish = [x, y]
+    elsif input[y][x] == "a"
+      possible_start_positions << [x, y]
     end
   end
 end
 
-puts "Shortest route from original starting location is #{run_routing(map, start, finish)}"
+shortest_route = run_routing(map, start, finish)
+puts "Shortest route from original starting location is #{shortest_route || "invalid"}"
 
+possible_start_positions.each do |start_position|
+  route = run_routing(map, start_position, finish)
+  # puts "Calculated route from #{start_position} of length #{route || "invalid"}"
+  if route && route < shortest_route
+    shortest_route = route
+  end
+end
 
-
-# puts "Shortest route from any position at height a is #{shortest_route}"
+puts "Shortest route from any position at height a is #{shortest_route}"
