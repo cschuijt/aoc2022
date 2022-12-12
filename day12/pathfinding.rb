@@ -116,7 +116,7 @@ input.each_index do |y|
 end
 
 shortest_route = run_routing(map, start, finish)
-puts "Shortest route from original starting location is #{shortest_route || "invalid"}"
+puts "Shortest route from original starting location is #{shortest_route}"
 
 possible_start_positions.each do |start_position|
   route = run_routing(map, start_position, finish)
