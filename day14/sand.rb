@@ -42,6 +42,37 @@ def draw_vertical_line(columns, col_bounds, x, start, finish)
   end
 end
 
+def simulate_sand(columns, col_bounds)
+  sand_location = [500 - col_bounds[0], 0]
+  while true
+    if columns[sand_location[0]][sand_location[1] + 1] == nil
+      # Sand goes out of bounds down
+      return false
+    elsif columns[sand_location[0]][sand_location[1] + 1] == "."
+      # Sand falls straight down
+      sand_location[1] = sand_location[1] + 1
+    elsif sand_location[0] - 1 < 0 ||
+          columns[sand_location[0] - 1][sand_location[1] + 1] == nil
+      # Sand goes out of bounds left
+      return false
+    elsif columns[sand_location[0] - 1][sand_location[1] + 1] == "."
+      # Sand falls down to the left
+      sand_location = [sand_location[0] - 1, sand_location[1] + 1]
+    elsif columns[sand_location[0] + 1] == nil ||
+          columns[sand_location[0] + 1][sand_location[1] + 1] == nil
+      # Sand goes out of bounds right
+      return false
+    elsif columns[sand_location[0] + 1][sand_location[1] + 1] == "."
+      # Sand falls down to the right
+      sand_location = [sand_location[0] + 1, sand_location[1] + 1]
+    else
+      # This unit of sand is done falling
+      columns[sand_location[0]][sand_location[1]] = "o"
+      return true
+    end
+  end
+end
+
 # For funsies:
 def print_map(columns)
   deepest_col = columns.map { |c| c.count }.max
@@ -71,4 +102,35 @@ input.each do |line|
   end
 end
 
-print_map(@columns)
+# Part 1
+
+sand_dropped = 0
+
+while simulate_sand(@columns, @col_bounds)
+  sand_dropped = sand_dropped + 1
+end
+
+# print_map(@columns)
+puts "#{sand_dropped} units of sand dropped for part 1"
+
+# Part 2
+
+deepest_col = @columns.map { |c| c.count }.max
+extend_columns_to(@columns, @col_bounds, 500 + deepest_col + 2)
+extend_columns_to(@columns, @col_bounds, 500 - deepest_col - 2)
+
+@columns.each do |column|
+  (deepest_col + 2 - column.size).times do
+    column << "."
+  end
+  column[deepest_col + 1] = "#"
+end
+
+while @columns[500 - @col_bounds[0]][0] == "+"
+  simulate_sand(@columns, @col_bounds)
+  sand_dropped = sand_dropped + 1
+end
+
+# print_map(@columns)
+puts "#{sand_dropped} units of sand dropped for part 2"
+# 24672 low
