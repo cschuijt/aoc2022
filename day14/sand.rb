@@ -133,4 +133,3 @@ end
 
 # print_map(@columns)
 puts "#{sand_dropped} units of sand dropped for part 2"
-# 24672 low
